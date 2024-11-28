@@ -313,7 +313,7 @@ export default function Page() {
                     </RadioGroup.Root>
                   </div> */}
                   {/* Logo Style Section */}
-                  <div className="mb-6">
+                  <div className="mb-12">
                     <label className="mb-2 flex items-center text-xs font-bold uppercase text-[#6F6F6F]">
                       STYLE
                       <InfoTooltip content="Choose a style for your logo" />
@@ -341,15 +341,15 @@ export default function Page() {
                       ))}
                     </RadioGroup.Root>
                   </div>
-                  {/* Image Size Section */}
-                  <div className="space-y-4">
+                  {/* Image Size and Format Section */}
+                  <div className="space-y-6 pt-4">
                     <div className="flex flex-col space-y-1.5">
-                      <Label>Image Size</Label>
+                      <Label htmlFor="image-size" className="text-xs font-bold uppercase text-[#6F6F6F]">Image Size</Label>
                       <Select
                         value={selectedImageSize}
                         onValueChange={setSelectedImageSize}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="image-size">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -364,12 +364,12 @@ export default function Page() {
                       </Select>
                     </div>
                     <div className="flex flex-col space-y-1.5">
-                      <Label>Format</Label>
+                      <Label htmlFor="format" className="text-xs font-bold uppercase text-[#6F6F6F]">Format</Label>
                       <Select
                         value={selectedImageFormat}
                         onValueChange={setSelectedImageFormat}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="format">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
