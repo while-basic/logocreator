@@ -50,6 +50,12 @@ const primaryColors = [
   { name: "Red", color: "#FF0000" },
   { name: "Green", color: "#00FF00" },
   { name: "Yellow", color: "#FFFF00" },
+  { name: "Purple", color: "#800080" },
+  { name: "Orange", color: "#FFA500" },
+  { name: "Pink", color: "#FFC0CB" },
+  { name: "Teal", color: "#008080" },
+  { name: "Lime", color: "#00FF00" },
+  { name: "Indigo", color: "#4B0082" },
 ];
 
 const backgroundColors = [
