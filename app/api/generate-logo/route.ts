@@ -100,6 +100,24 @@ export async function POST(req: Request) {
   const minimalStyle =
     "minimal, simple, timeless, versatile, single color logo, use negative space, flat design with minimal details, Light, soft, and subtle.";
 
+  const vintageStyle =
+    "vintage, retro, nostalgic design with aged textures, muted colors, and classic typography. Incorporate distressed effects and traditional design elements from the past.";
+
+  const elegantStyle =
+    "elegant, sophisticated, luxurious design with refined typography and graceful elements. Use delicate lines, subtle gradients, and balanced composition.";
+
+  const boldStyle =
+    "bold, impactful design with strong typography and commanding presence. Use thick lines, high contrast, and powerful shapes that demand attention.";
+
+  const geometricStyle =
+    "geometric, precise design using basic shapes like circles, squares, and triangles arranged in a balanced, mathematical way. Clean lines and perfect symmetry.";
+
+  const organicStyle =
+    "organic, natural design with flowing lines and curves inspired by nature. Incorporate botanical elements, smooth transitions, and natural movement.";
+
+  const threeDStyle =
+    "three-dimensional design with depth, shadows, and perspective. Use gradients, lighting effects, and layered elements to create a realistic 3D appearance.";
+
   const styleLookup: Record<string, string> = {
     Flashy: flashyStyle,
     Tech: techStyle,
@@ -107,6 +125,12 @@ export async function POST(req: Request) {
     Playful: playfulStyle,
     Abstract: abstractStyle,
     Minimal: minimalStyle,
+    Vintage: vintageStyle,
+    Elegant: elegantStyle,
+    Bold: boldStyle,
+    Geometric: geometricStyle,
+    Organic: organicStyle,
+    "3D": threeDStyle,
   };
 
   const prompt = dedent`A single logo, high-quality, award-winning professional design, made for both digital and print media, only contains a few vector shapes, ${styleLookup[data.selectedStyle]}
