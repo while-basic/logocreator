@@ -62,6 +62,20 @@ const backgroundColors = [
   { name: "White", color: "#FFFFFF" },
   { name: "Gray", color: "#CCCCCC" },
   { name: "Black", color: "#000000" },
+  { name: "Off White", color: "#F5F5F5" },
+  { name: "Light Gray", color: "#E0E0E0" },
+  { name: "Dark Gray", color: "#404040" },
+  { name: "Navy", color: "#000080" },
+  { name: "Charcoal", color: "#36454F" },
+  { name: "Ivory", color: "#FFFFF0" },
+  { name: "Beige", color: "#F5F5DC" }
+];
+
+const imageSizes = [
+  { name: "Small (256x256)", value: "256x256" },
+  { name: "Medium (512x512)", value: "512x512" },
+  { name: "Large (1024x1024)", value: "1024x1024" },
+  { name: "Extra Large (1440x1440)", value: "1440x1440" },
 ];
 
 export default function Page() {
@@ -80,6 +94,7 @@ export default function Page() {
   const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
     backgroundColors[0].name,
   );
+  const [selectedImageSize, setSelectedImageSize] = useState(imageSizes[1].value);
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState("");
@@ -108,6 +123,7 @@ export default function Page() {
         selectedStyle,
         selectedPrimaryColor,
         selectedBackgroundColor,
+        selectedImageSize,
         additionalInfo,
       }),
     });
@@ -240,6 +256,27 @@ export default function Page() {
                         </RadioGroup.Item>
                       ))}
                     </RadioGroup.Root>
+                  </div>
+                  {/* Image Size Section */}
+                  <div className="grid w-full gap-1.5">
+                    <label className="text-xs font-bold uppercase text-[#6F6F6F]" htmlFor="imageSize">Image Size</label>
+                    <Select
+                      value={selectedImageSize}
+                      onValueChange={setSelectedImageSize}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select image size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {imageSizes.map((size) => (
+                            <SelectItem key={size.value} value={size.value}>
+                              {size.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                   {/* Color Picker Section */}
                   <div className="mb-[25px] flex flex-col md:flex-row md:space-x-3">

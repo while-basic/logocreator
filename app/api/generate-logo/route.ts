@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       selectedStyle: z.string(),
       selectedPrimaryColor: z.string(),
       selectedBackgroundColor: z.string(),
+      selectedImageSize: z.string(),
       additionalInfo: z.string().optional(),
     })
     .parse(json);
@@ -111,11 +112,12 @@ export async function POST(req: Request) {
   Primary color is ${data.selectedPrimaryColor.toLowerCase()} and background color is ${data.selectedBackgroundColor.toLowerCase()}. The company name is ${data.companyName}, make sure to include the company name in the logo. ${data.additionalInfo ? `Additional info: ${data.additionalInfo}` : ""}`;
 
   try {
+    const [width, height] = data.selectedImageSize.split('x').map(Number);
     const response = await client.images.create({
       prompt,
       model: "black-forest-labs/FLUX.1.1-pro",
-      width: 768,
-      height: 768,
+      width,
+      height,
       // @ts-expect-error - this is not typed in the API
       response_format: "base64",
     });
