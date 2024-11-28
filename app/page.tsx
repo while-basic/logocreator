@@ -93,6 +93,7 @@ export default function Page() {
     backgroundColors[0].name,
   );
   const [selectedImageSize, setSelectedImageSize] = useState(imageSizes[1].value);
+  const [selectedImageFormat, setSelectedImageFormat] = useState("png");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState("");
@@ -205,6 +206,7 @@ export default function Page() {
         selectedPrimaryColor,
         selectedBackgroundColor,
         selectedImageSize,
+        selectedImageFormat,
         additionalInfo,
         referenceImage: referenceImage,
       }),
@@ -212,7 +214,7 @@ export default function Page() {
 
     if (res.ok) {
       const json = await res.json();
-      setGeneratedImage(`data:image/png;base64,${json.b64_json}`);
+      setGeneratedImage(`data:image/${selectedImageFormat};base64,${json.b64_json}`);
       await user.reload();
     } else if (res.headers.get("Content-Type") === "text/plain") {
       toast({
@@ -340,34 +342,44 @@ export default function Page() {
                     </RadioGroup.Root>
                   </div>
                   {/* Image Size Section */}
-                  <div className="grid w-full gap-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase text-[#6F6F6F]" htmlFor="imageSize">
-                        Image Size
-                      </label>
-                      {mounted && userAPIKey && (
-                        <span className="text-xs text-gray-500">
-                          (~{formatPrice(calculatePrice(selectedImageSize))} per image)
-                        </span>
-                      )}
+                  <div className="space-y-4">
+                    <div className="flex flex-col space-y-1.5">
+                      <Label>Image Size</Label>
+                      <Select
+                        value={selectedImageSize}
+                        onValueChange={setSelectedImageSize}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {imageSizes.map((size) => (
+                              <SelectItem key={size.value} value={size.value}>
+                                {size.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Select
-                      value={selectedImageSize}
-                      onValueChange={setSelectedImageSize}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select image size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {imageSizes.map((size) => (
-                            <SelectItem key={size.value} value={size.value}>
-                              {size.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-col space-y-1.5">
+                      <Label>Format</Label>
+                      <Select
+                        value={selectedImageFormat}
+                        onValueChange={setSelectedImageFormat}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="png">PNG</SelectItem>
+                            <SelectItem value="svg">SVG</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   {/* Color Picker Section */}
                   <div className="mb-[25px] flex flex-col md:flex-row md:space-x-3">
@@ -559,7 +571,7 @@ export default function Page() {
 
                   <div className="absolute -right-12 top-0 flex flex-col gap-2">
                     <Button size="icon" variant="secondary" asChild>
-                      <a href={generatedImage} download="logo.png">
+                      <a href={generatedImage} download={`logo.${selectedImageFormat}`}>
                         <DownloadIcon />
                       </a>
                     </Button>

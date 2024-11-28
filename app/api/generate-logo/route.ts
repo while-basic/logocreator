@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       selectedPrimaryColor: z.string(),
       selectedBackgroundColor: z.string(),
       selectedImageSize: z.string(),
+      selectedImageFormat: z.enum(["png", "svg"]),
       additionalInfo: z.string().optional(),
       referenceImage: z.string().nullable(),
     })
@@ -121,15 +122,20 @@ export async function POST(req: Request) {
       model: "black-forest-labs/FLUX.1.1-pro",
       width,
       height,
-      // Add reference image if provided
       ...(data.referenceImage ? {
         image: data.referenceImage,
-        image_weight: 0.75, // Add weight to influence the generation more strongly
+        image_weight: 0.75,
       } : {}),
-      // @ts-expect-error - this is not typed in the API
-      response_format: "base64",
+      // Request SVG format if selected
+      response_format: data.selectedImageFormat === "svg" ? "svg" : "base64",
     });
-    return Response.json(response.data[0], { status: 200 });
+
+    // Return the appropriate format
+    if (data.selectedImageFormat === "svg") {
+      return Response.json({ svg: response.data[0].svg }, { status: 200 });
+    } else {
+      return Response.json({ b64_json: response.data[0].b64_json }, { status: 200 });
+    }
   } catch (error) {
     const invalidApiKey = z
       .object({
