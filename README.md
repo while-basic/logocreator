@@ -25,7 +25,7 @@
 ## Future Tasks
 
 - [ ] Create a dashboard with a user's logo history
-- [ ] Support SVG exports instead of just PNG
+- [X] Support SVG exports instead of just PNG
 - [X] Add support for additional styles
 - [X] Add a dropdown for image size (can do up to 1440x1440)
 - [X] Show approximate price when using your own Together AI key
