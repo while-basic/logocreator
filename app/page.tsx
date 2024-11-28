@@ -5,6 +5,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { motion } from "framer-motion";
 import { Textarea } from "@/app/components/ui/textarea";
+import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 import {
   Select,
   SelectContent,
@@ -18,7 +19,7 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { DownloadIcon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { domain } from "@/app/lib/domain";
@@ -79,12 +80,8 @@ const imageSizes = [
 ];
 
 export default function Page() {
-  const [userAPIKey, setUserAPIKey] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("userAPIKey") || "";
-    }
-    return "";
-  });
+  const [mounted, setMounted] = useState(false);
+  const [userAPIKey, setUserAPIKey] = useState("");
   const [companyName, setCompanyName] = useState("");
   // const [selectedLayout, setSelectedLayout] = useState(layouts[0].name);
   const [selectedStyle, setSelectedStyle] = useState(logoStyles[0].name);
@@ -100,6 +97,24 @@ export default function Page() {
   const [generatedImage, setGeneratedImage] = useState("");
 
   const { isSignedIn, isLoaded, user } = useUser();
+
+  useEffect(() => {
+    setMounted(true);
+    const savedKey = localStorage.getItem("userAPIKey") || "";
+    setUserAPIKey(savedKey);
+    console.log("Mounted, API Key:", savedKey);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && userAPIKey) {
+      console.log("Should show price:", {
+        mounted,
+        hasKey: Boolean(userAPIKey),
+        size: selectedImageSize,
+        price: formatPrice(calculatePrice(selectedImageSize))
+      });
+    }
+  }, [mounted, userAPIKey, selectedImageSize]);
 
   const handleAPIKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -259,7 +274,16 @@ export default function Page() {
                   </div>
                   {/* Image Size Section */}
                   <div className="grid w-full gap-1.5">
-                    <label className="text-xs font-bold uppercase text-[#6F6F6F]" htmlFor="imageSize">Image Size</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase text-[#6F6F6F]" htmlFor="imageSize">
+                        Image Size
+                      </label>
+                      {mounted && userAPIKey && (
+                        <span className="text-xs text-gray-500">
+                          (~{formatPrice(calculatePrice(selectedImageSize))} per image)
+                        </span>
+                      )}
+                    </div>
                     <Select
                       value={selectedImageSize}
                       onValueChange={setSelectedImageSize}
