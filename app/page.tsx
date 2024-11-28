@@ -37,6 +37,12 @@ const logoStyles = [
   { name: "Playful", icon: "/playful.svg" },
   { name: "Abstract", icon: "/abstract.svg" },
   { name: "Minimal", icon: "/minimal.svg" },
+  { name: "Vintage", icon: "/vintage.svg" },
+  { name: "Elegant", icon: "/elegant.svg" },
+  { name: "Bold", icon: "/bold.svg" },
+  { name: "Geometric", icon: "/geometric.svg" },
+  { name: "Organic", icon: "/organic.svg" },
+  { name: "3D", icon: "/3d.svg" },
 ];
 
 const primaryColors = [
