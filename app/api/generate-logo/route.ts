@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       selectedBackgroundColor: z.string(),
       selectedImageSize: z.string(),
       additionalInfo: z.string().optional(),
+      referenceImage: z.string().nullable(),
     })
     .parse(json);
 
@@ -109,7 +110,9 @@ export async function POST(req: Request) {
 
   const prompt = dedent`A single logo, high-quality, award-winning professional design, made for both digital and print media, only contains a few vector shapes, ${styleLookup[data.selectedStyle]}
 
-  Primary color is ${data.selectedPrimaryColor.toLowerCase()} and background color is ${data.selectedBackgroundColor.toLowerCase()}. The company name is ${data.companyName}, make sure to include the company name in the logo. ${data.additionalInfo ? `Additional info: ${data.additionalInfo}` : ""}`;
+  Primary color is ${data.selectedPrimaryColor.toLowerCase()} and background color is ${data.selectedBackgroundColor.toLowerCase()}. The company name is ${data.companyName}, make sure to include the company name in the logo. ${data.additionalInfo ? `Additional info: ${data.additionalInfo}` : ""}
+  
+  ${data.referenceImage ? "Use the provided reference image as inspiration. Create a new logo that captures a similar style, layout, and design approach while incorporating the specified colors and company name. Do not copy the reference logo exactly, but rather use it as a guide for the overall aesthetic and composition." : ""}`;
 
   try {
     const [width, height] = data.selectedImageSize.split('x').map(Number);
@@ -118,6 +121,11 @@ export async function POST(req: Request) {
       model: "black-forest-labs/FLUX.1.1-pro",
       width,
       height,
+      // Add reference image if provided
+      ...(data.referenceImage ? {
+        image: data.referenceImage,
+        image_weight: 0.75, // Add weight to influence the generation more strongly
+      } : {}),
       // @ts-expect-error - this is not typed in the API
       response_format: "base64",
     });

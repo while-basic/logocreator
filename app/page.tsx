@@ -3,6 +3,7 @@
 import Spinner from "@/app/components/Spinner";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
 import { motion } from "framer-motion";
 import { Textarea } from "@/app/components/ui/textarea";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
@@ -19,7 +20,7 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { DownloadIcon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { domain } from "@/app/lib/domain";
@@ -95,6 +96,9 @@ export default function Page() {
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState("");
+  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [isAnalyzingReference, setIsAnalyzingReference] = useState(false);
+  const [referenceDescription, setReferenceDescription] = useState<string | null>(null);
 
   const { isSignedIn, isLoaded, user } = useUser();
 
@@ -122,6 +126,69 @@ export default function Page() {
     localStorage.setItem("userAPIKey", newValue);
   };
 
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      setReferenceImage(base64);
+      
+      if (!userAPIKey) {
+        toast({
+          title: "API Key Required",
+          description: "Please enter your Together AI API key to analyze reference logos",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsAnalyzingReference(true);
+      try {
+        const response = await fetch("/api/analyze-logo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image: base64,
+            userAPIKey,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const data = await response.json();
+        setReferenceDescription(data.description);
+        setAdditionalInfo((prev) => 
+          prev + (prev ? "\n" : "") + "Reference logo style: " + data.description
+        );
+      } catch (error) {
+        toast({
+          title: "Error analyzing logo",
+          description: error instanceof Error ? error.message : "An error occurred",
+          variant: "destructive",
+        });
+      } finally {
+        setIsAnalyzingReference(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [userAPIKey, toast]);
+
   async function generateLogo() {
     if (!isSignedIn) {
       return;
@@ -134,12 +201,12 @@ export default function Page() {
       body: JSON.stringify({
         userAPIKey,
         companyName,
-        // selectedLayout,
         selectedStyle,
         selectedPrimaryColor,
         selectedBackgroundColor,
         selectedImageSize,
         additionalInfo,
+        referenceImage: referenceImage,
       }),
     });
 
@@ -360,6 +427,41 @@ export default function Page() {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                  {/* Reference Logo Upload */}
+                  <div className="grid w-full gap-1.5">
+                    <Label htmlFor="reference" className="text-xs font-bold uppercase text-[#6F6F6F]">
+                      Reference Logo (Optional)
+                      {!userAPIKey && (
+                        <span className="ml-2 text-xs font-normal normal-case text-gray-500">
+                          (Requires Together AI API key)
+                        </span>
+                      )}
+                    </Label>
+                    <div className="flex gap-4">
+                      <Input
+                        id="reference"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="cursor-pointer"
+                      />
+                      {isAnalyzingReference && <Spinner />}
+                    </div>
+                    {referenceImage && (
+                      <div className="mt-2">
+                        <img
+                          src={referenceImage}
+                          alt="Reference logo"
+                          className="max-h-32 rounded border border-gray-200"
+                        />
+                      </div>
+                    )}
+                    {referenceDescription && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        Analysis: {referenceDescription}
+                      </p>
+                    )}
                   </div>
                   {/* Additional Options Section */}
                   <div className="mb-1">
